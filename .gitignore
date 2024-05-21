@@ -9,3 +9,6 @@ dist/
 *.swp
 
 .vscode/
+
+data/
+weights/
