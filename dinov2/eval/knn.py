@@ -58,6 +58,11 @@ def get_args_parser(
         help="Number of NN to use. 20 is usually working the best.",
     )
     parser.add_argument(
+        "--use-prototypes",
+        action="store_true",
+        help="Whether to use prototypes instead of the full dataset."
+    )
+    parser.add_argument(
         "--temperature",
         type=float,
         help="Temperature used in the voting coefficient",
@@ -195,17 +200,23 @@ class DictKeysModule(torch.nn.Module):
         return {"preds": features_dict, "target": targets}
 
 
-def create_module_dict(*, module, n_per_class_list, n_tries, nb_knn, train_features, train_labels):
+def create_module_dict(*, module, n_per_class_list, n_tries, nb_knn, use_prototypes, train_features, train_labels):
     modules = {}
     mapping = create_class_indices_mapping(train_labels)
     for npc in n_per_class_list:
         if npc < 0:  # Only one try needed when using the full data
+            if use_prototypes:
+                logger.info("Using prototypes for the full data.")
+                train_features = torch.vstack([train_features[mapping[k]].squeeze().mean(0) for k in mapping.keys()])
+                train_labels = torch.arange(len(mapping.keys())).cuda()
+                logger.info(f"Features shape: {tuple(train_features.shape)}")
+                logger.info(f"Labels shape: {tuple(train_labels.shape)}")
             full_module = module(
                 train_features=train_features,
                 train_labels=train_labels,
                 nb_knn=nb_knn,
             )
-            modules["full"] = ModuleDictWithForward({"1": full_module})
+            modules["full_with_prototypes" if use_prototypes else "full"] = ModuleDictWithForward({"1": full_module})
             continue
         all_tries = {}
         for t in range(n_tries):
@@ -248,6 +259,7 @@ def eval_knn(
     val_dataset,
     accuracy_averaging,
     nb_knn,
+    use_prototypes,
     temperature,
     batch_size,
     num_workers,
@@ -282,6 +294,7 @@ def eval_knn(
         n_per_class_list=n_per_class_list,
         n_tries=n_tries,
         nb_knn=nb_knn,
+        use_prototypes=use_prototypes,
         train_features=train_features,
         train_labels=train_labels,
     )
@@ -321,6 +334,7 @@ def eval_knn_with_model(
     train_dataset_str="ImageNet:split=TRAIN",
     val_dataset_str="ImageNet:split=VAL",
     nb_knn=(10, 20, 100, 200),
+    use_prototypes=False,
     temperature=0.07,
     autocast_dtype=torch.float,
     accuracy_averaging=AccuracyAveraging.MEAN_ACCURACY,
@@ -349,6 +363,7 @@ def eval_knn_with_model(
             val_dataset=val_dataset,
             accuracy_averaging=accuracy_averaging,
             nb_knn=nb_knn,
+            use_prototypes=use_prototypes,
             temperature=temperature,
             batch_size=batch_size,
             num_workers=num_workers,
@@ -384,6 +399,7 @@ def main(args):
         train_dataset_str=args.train_dataset_str,
         val_dataset_str=args.val_dataset_str,
         nb_knn=args.nb_knn,
+        use_prototypes=args.use_prototypes,
         temperature=args.temperature,
         autocast_dtype=autocast_dtype,
         accuracy_averaging=AccuracyAveraging.MEAN_ACCURACY,
