@@ -63,7 +63,7 @@ def _configure_logger(
         if os.path.splitext(output)[-1] in (".txt", ".log"):
             filename = output
         else:
-            filename = os.path.join(output, "logs", "log.txt")
+            filename = os.path.join(output, "logs", "log.log")
 
         if not distributed.is_main_process():
             global_rank = distributed.get_global_rank()
