@@ -1,0 +1,170 @@
+I20240521 00:50:37 170271 dinov2 config.py:59] git:
+  sha: e1277af2ba9496fbadf7aec6eba56e8d882d1e35, status: has uncommitted changes, branch: main
+
+I20240521 00:50:37 170271 dinov2 config.py:60] batch_size: 256
+config_file: dinov2/configs/eval/vitb14_pretrain.yaml
+gather_on_cpu: False
+n_per_class_list: [-1]
+n_tries: 1
+nb_knn: [10, 20, 100, 200]
+opts: ['train.output_dir=/home/dmorara/ml-projects/continual-learning/dinov2/experiments/imagenet-a-knn-big-use-prototypes']
+output_dir: /home/dmorara/ml-projects/continual-learning/dinov2/experiments/imagenet-a-knn-big-use-prototypes
+pretrained_weights: /home/dmorara/ml-projects/continual-learning/weights/dinov2_vitb14_pretrain.pth
+temperature: 0.07
+train_dataset_str: ImageNetA:split=train:root=/home/dmorara/ml-projects/RevisitingCIL/data/imagenet-a
+use_prototypes: True
+val_dataset_str: ImageNetA:split=val:root=/home/dmorara/ml-projects/RevisitingCIL/data/imagenet-a
+I20240521 00:50:37 170271 dinov2 config.py:26] sqrt scaling learning rate; base: 0.004, new: 0.001
+I20240521 00:50:37 170271 dinov2 config.py:33] MODEL:
+  WEIGHTS: ''
+compute_precision:
+  grad_scaler: true
+  teacher:
+    backbone:
+      sharding_strategy: SHARD_GRAD_OP
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+    dino_head:
+      sharding_strategy: SHARD_GRAD_OP
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+    ibot_head:
+      sharding_strategy: SHARD_GRAD_OP
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+  student:
+    backbone:
+      sharding_strategy: SHARD_GRAD_OP
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+    dino_head:
+      sharding_strategy: SHARD_GRAD_OP
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp32
+        buffer_dtype: fp32
+    ibot_head:
+      sharding_strategy: SHARD_GRAD_OP
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp32
+        buffer_dtype: fp32
+dino:
+  loss_weight: 1.0
+  head_n_prototypes: 65536
+  head_bottleneck_dim: 256
+  head_nlayers: 3
+  head_hidden_dim: 2048
+  koleo_loss_weight: 0.1
+ibot:
+  loss_weight: 1.0
+  mask_sample_probability: 0.5
+  mask_ratio_min_max:
+  - 0.1
+  - 0.5
+  separate_head: false
+  head_n_prototypes: 65536
+  head_bottleneck_dim: 256
+  head_nlayers: 3
+  head_hidden_dim: 2048
+train:
+  batch_size_per_gpu: 64
+  dataset_path: ImageNet:split=TRAIN
+  output_dir: /home/dmorara/ml-projects/continual-learning/dinov2/experiments/imagenet-a-knn-big-use-prototypes
+  saveckp_freq: 20
+  seed: 0
+  num_workers: 10
+  OFFICIAL_EPOCH_LENGTH: 1250
+  cache_dataset: true
+  centering: centering
+student:
+  arch: vit_base
+  patch_size: 14
+  drop_path_rate: 0.3
+  layerscale: 1.0e-05
+  drop_path_uniform: true
+  pretrained_weights: ''
+  ffn_layer: mlp
+  block_chunks: 0
+  qkv_bias: true
+  proj_bias: true
+  ffn_bias: true
+  num_register_tokens: 0
+  interpolate_antialias: false
+  interpolate_offset: 0.1
+teacher:
+  momentum_teacher: 0.992
+  final_momentum_teacher: 1
+  warmup_teacher_temp: 0.04
+  teacher_temp: 0.07
+  warmup_teacher_temp_epochs: 30
+optim:
+  epochs: 100
+  weight_decay: 0.04
+  weight_decay_end: 0.4
+  base_lr: 0.004
+  lr: 0.001
+  warmup_epochs: 10
+  min_lr: 1.0e-06
+  clip_grad: 3.0
+  freeze_last_layer_epochs: 1
+  scaling_rule: sqrt_wrt_1024
+  patch_embed_lr_mult: 0.2
+  layerwise_decay: 0.9
+  adamw_beta1: 0.9
+  adamw_beta2: 0.999
+crops:
+  global_crops_scale:
+  - 0.32
+  - 1.0
+  local_crops_number: 8
+  local_crops_scale:
+  - 0.05
+  - 0.32
+  global_crops_size: 518
+  local_crops_size: 98
+evaluation:
+  eval_period_iterations: 12500
+
+I20240521 00:50:37 170271 dinov2 vision_transformer.py:122] using MLP layer as FFN
+I20240521 00:50:39 170271 dinov2 utils.py:33] Pretrained weights found at /home/dmorara/ml-projects/continual-learning/weights/dinov2_vitb14_pretrain.pth and loaded with msg: <All keys matched successfully>
+I20240521 00:50:39 170271 dinov2 loaders.py:89] using dataset: "ImageNetA:split=train:root=/home/dmorara/ml-projects/RevisitingCIL/data/imagenet-a"
+I20240521 00:50:39 170271 dinov2 loaders.py:94] # of dataset samples: 5,981
+I20240521 00:50:39 170271 dinov2 loaders.py:89] using dataset: "ImageNetA:split=val:root=/home/dmorara/ml-projects/RevisitingCIL/data/imagenet-a"
+I20240521 00:50:39 170271 dinov2 loaders.py:94] # of dataset samples: 1,519
+I20240521 00:50:39 170271 dinov2 knn.py:272] Extracting features for train set...
+I20240521 00:50:39 170271 dinov2 loaders.py:152] sampler: distributed
+I20240521 00:50:39 170271 dinov2 loaders.py:211] using PyTorch data loader
+I20240521 00:50:39 170271 dinov2 loaders.py:224] # of batches: 24
+I20240521 00:50:46 170271 dinov2 utils.py:129] Storing features into tensor of shape torch.Size([5981, 768])
+I20240521 00:50:46 170271 dinov2 helpers.py:102]   [ 0/24]  eta: 0:02:49    time: 7.059834  data: 2.863292  max mem: 2003
+I20240521 00:50:48 170271 dinov2 helpers.py:102]   [10/24]  eta: 0:00:10    time: 0.774365  data: 0.260495  max mem: 2027
+I20240521 00:50:51 170271 dinov2 helpers.py:102]   [20/24]  eta: 0:00:02    time: 0.205755  data: 0.114374  max mem: 2027
+I20240521 00:50:52 170271 dinov2 helpers.py:102]   [23/24]  eta: 0:00:00    time: 0.299554  data: 0.180431  max mem: 2027
+I20240521 00:50:53 170271 dinov2 helpers.py:130]  Total time: 0:00:13 (0.550782 s / it)
+I20240521 00:50:53 170271 dinov2 utils.py:141] Features shape: (5981, 768)
+I20240521 00:50:53 170271 dinov2 utils.py:142] Labels shape: (5981,)
+I20240521 00:50:53 170271 dinov2 knn.py:276] Train features created, shape torch.Size([5981, 768]).
+I20240521 00:50:53 170271 dinov2 loaders.py:152] sampler: distributed
+I20240521 00:50:53 170271 dinov2 loaders.py:211] using PyTorch data loader
+I20240521 00:50:53 170271 dinov2 loaders.py:224] # of batches: 6
+I20240521 00:50:53 170271 dinov2 knn.py:209] Using prototypes for the full data.
+I20240521 00:50:53 170271 dinov2 knn.py:212] Features shape: (200, 768)
+I20240521 00:50:53 170271 dinov2 knn.py:213] Labels shape: (200,)
+I20240521 00:50:53 170271 dinov2 knn.py:312] Start the k-NN classification.
+I20240521 00:50:56 170271 dinov2 helpers.py:102] Test:  [0/6]  eta: 0:00:18    time: 3.003656  data: 2.733400  max mem: 2027
+I20240521 00:50:57 170271 dinov2 helpers.py:102] Test:  [5/6]  eta: 0:00:00    time: 0.741467  data: 0.455683  max mem: 2027
+I20240521 00:50:57 170271 dinov2 helpers.py:130] Test: Total time: 0:00:04 (0.741740 s / it)
+I20240521 00:50:57 170271 dinov2 utils.py:79] Averaged stats: 
+I20240521 00:50:57 170271 dinov2 knn.py:382] ('full_with_prototypes', 10) classifier result: Top1: 63.59 Top5: 83.74
+I20240521 00:50:57 170271 dinov2 knn.py:382] ('full_with_prototypes', 20) classifier result: Top1: 63.59 Top5: 83.74
+I20240521 00:50:57 170271 dinov2 knn.py:382] ('full_with_prototypes', 100) classifier result: Top1: 63.59 Top5: 83.74
+I20240521 00:50:57 170271 dinov2 knn.py:382] ('full_with_prototypes', 200) classifier result: Top1: 63.59 Top5: 83.74
