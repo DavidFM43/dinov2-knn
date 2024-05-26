@@ -12,3 +12,5 @@ dist/
 
 data/
 weights/
+
+*.pth

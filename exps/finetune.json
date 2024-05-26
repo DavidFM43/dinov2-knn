@@ -1,0 +1,15 @@
+{
+    "prefix": "reproduce",
+    "dataset": "cifar10",
+    "memory_size": 2000,
+    "memory_per_class": 20,
+    "fixed_memory": false,
+    "shuffle": true,
+    "init_cls": 5,
+    "increment": 5,
+    "model_name": "finetune",
+    "convnet_type": "resnet32",
+    "device": ["0","1"],
+    "seed": [1993],
+    "second-task-freeze-stage": 1 
+}
