@@ -35,7 +35,7 @@ def _train(args):
         args["prefix"],
         args["seed"],
         args["convnet_type"],
-        args["second-task-freeze-stage"]
+        args["second_task_freeze_stage"]
     )
     # que es esto:
     logging.basicConfig(
@@ -56,25 +56,25 @@ def _train(args):
         args["seed"],
         args["init_cls"],
         args["increment"],
-        args["second-task-freeze-stage"]
+        args["second_task_freeze_stage"]
     )
-    model = factory.get_model(args["model_name"], args)
+    
+    output_dir = f'logs/{args["model_name"]}/{args["logfilename"]}'
+    ensure_dir_exists(output_dir)
 
+    model = factory.get_model(args["model_name"], args)
     cnn_curve, nme_curve = {"top1": [], "top5": []}, {"top1": [], "top5": []}
     cnn_matrix, nme_matrix = [], []
-    
 
     init = 0
-    if flag:= True:
-        print(f'{"-"*50} Cargando modelo {"-"*50}')
-        task_0 = torch.load('w0.pth'); del task_0['fc.weight']; del task_0['fc.bias']
-        model._network.load_state_dict(task_0)
-        # del data_manager._increments[0]
+    if args["second_task_freeze_stage"] != 0:
+        load_model(output_dir, model)
         init = 1
-    else: init = 0
+    else: print(f'{"-"*30} No se cargo ningun modelo {"-"*30}')
 
     if data_manager.freeze_stage != 0:
-        model._network.freeze_stage(data_manager.freeze_stage); print("congelacion lograda")
+        model._network.freeze_stage(data_manager.freeze_stage)
+        print("Congelacion Realizada")
         model._network.print_freeze_status()
 
 
@@ -86,8 +86,9 @@ def _train(args):
             "Trainable params: {}".format(count_parameters(model._network, True))
         )
         model.incremental_train(data_manager)
-        torch.save(model._network.state_dict(), f'w{task+init}.pth'); print(f'{"-"*50}\nsave w{task}.pth \n{"-"*50}')
-        cnn_accy, nme_accy = model.eval_task()
+        save_model(output_dir,model, args, task, init)
+
+        cnn_accy, nme_accy = model.eval_task(save_conf= True)
         model.after_task()
 
         if nme_accy is not None:
@@ -140,7 +141,7 @@ def _train(args):
             logging.info("Average Accuracy (CNN): {}".format(sum(cnn_curve["top1"])/len(cnn_curve["top1"])))
 
 
-    if len(cnn_matrix)>0:
+    """ if len(cnn_matrix)>0:
         np_acctable = np.zeros([task + 1, task + 1])
         for idxx, line in enumerate(cnn_matrix):
             idxy = len(line)
@@ -150,8 +151,8 @@ def _train(args):
         print('Accuracy Matrix (CNN):')
         print(np_acctable)
         print('Forgetting (CNN):', forgetting)
-        logging.info('Forgetting (CNN): {}'.format(forgetting))
-    if len(nme_matrix)>0:
+        logging.info('Forgetting (CNN): {}'.format(forgetting))"""
+    """if len(nme_matrix)>0:
         np_acctable = np.zeros([task + 1, task + 1])
         for idxx, line in enumerate(nme_matrix):
             idxy = len(line)
@@ -161,7 +162,7 @@ def _train(args):
         print('Accuracy Matrix (NME):')
         print(np_acctable)
         print('Forgetting (NME):', forgetting)
-        logging.info('Forgetting (NME):', forgetting)
+        logging.info('Forgetting (NME):', forgetting)"""
 
 
 def _set_device(args):
@@ -190,3 +191,24 @@ def _set_random():
 def print_args(args):
     for key, value in args.items():
         logging.info("{}: {}".format(key, value))
+
+
+def ensure_dir_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print(f"Directorio {path} creado.")
+    else:
+        print(f"El directorio {path} ya existe.")
+
+def load_model(output_dir, model):
+    task_0 = torch.load(f'{output_dir}/w0_stage_0.pth')
+    del task_0['fc.weight']; del task_0['fc.bias']
+    model._network.load_state_dict(task_0)
+
+    print(f'{"-"*30} Modelo Cargado {"-"*30}')
+
+def save_model(output_dir, model, args, task, init):
+    torch.save(model._network.state_dict(), f'{output_dir}/w{task+init}_stage_{args["second_task_freeze_stage"]}.pth')
+
+    print(f'{"-"*50}save w{task+init}_stage_{args["second_task_freeze_stage"]}.pth{"-"*50}')
+

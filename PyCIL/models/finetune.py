@@ -11,27 +11,32 @@ from utils.inc_net import IncrementalNet
 from models.base import BaseLearner
 from utils.toolkit import target2onehot, tensor2numpy
 
-
-init_epoch = 1
-init_lr = 0.1
-init_milestones = [60, 120, 170]
-init_lr_decay = 0.1
-init_weight_decay = 0.0005
+import yaml
 
 
-epochs = 1
-lrate = 0.1
-milestones = [40, 70]
-lrate_decay = 0.1
-batch_size = 128
-weight_decay = 2e-4
-num_workers = 8
+yaml_file_path = 'hyperparameters.yaml'
+
+with open(yaml_file_path, 'r') as file:
+    config = yaml.safe_load(file)
+
+init_epoch = config['init_epoch']
+init_lr = config['init_lr']
+init_milestones = config['init_milestones']
+init_lr_decay = config['init_lr_decay']
+init_weight_decay = config['init_weight_decay']
+
+epochs = config['epochs']
+lrate = config['lrate']
+milestones = config['milestones']
+lrate_decay = config['lrate_decay']
+batch_size = config['batch_size']
+weight_decay = config['weight_decay']
+num_workers = config['num_workers']
 
 
 class Finetune(BaseLearner):
     def __init__(self, args):
         super().__init__(args)
-        #self.freeze_stage = args["second-task-freeze-stage"]
         self._network = IncrementalNet(args, False)
 
     def after_task(self):
@@ -68,6 +73,10 @@ class Finetune(BaseLearner):
         self.test_loader = DataLoader(
             test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
+
+        # Comprobar que al entrenar la task 1 si inicie desde la segunda task
+        #print("Etiquetas en train_loader:",np.unique(train_dataset.labels) )
+        #print("Etiquetas en test_loader:", np.unique(test_dataset.labels))
 
         if len(self._multiple_gpus) > 1:
             self._network = nn.DataParallel(self._network, self._multiple_gpus)

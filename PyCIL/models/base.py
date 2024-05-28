@@ -91,18 +91,21 @@ class BaseLearner(object):
         else:
             nme_accy = None
 
-        if save_conf:
+        output_dir = f'logs/{self.args["model_name"]}/{self.args["logfilename"]}'
+        stage_name = self.args["second_task_freeze_stage"]
+        if save_conf: 
             _pred = y_pred.T[0]
-            _pred_path = os.path.join(self.args['logfilename'], "pred.npy")
-            _target_path = os.path.join(self.args['logfilename'], "target.npy")
+            _pred_path = os.path.join(output_dir, f"pred_task_{self._cur_task}_stage_{stage_name}.npy")
+            _target_path = os.path.join(output_dir, f"target_task_{self._cur_task}_stage_{stage_name}.npy")
             np.save(_pred_path, _pred)
             np.save(_target_path, y_true)
+            print(f'{"-"*20} Se guardaron los resultados de evaluación {"-"*20}')
 
-            _save_dir = os.path.join(f"./results/conf_matrix/{self.args['prefix']}")
+            """_save_dir = os.path.join(f"/home/emendezc/investigacion/dinov2-knn/PyCIL/results/conf_matrix/{self.args['prefix']}")
             os.makedirs(_save_dir, exist_ok=True)
             _save_path = os.path.join(_save_dir, f"{self.args['csv_name']}.csv")
             with open(_save_path, "a+") as f:
-                f.write(f"{self.args['time_str']},{self.args['model_name']},{_pred_path},{_target_path} \n")
+                f.write(f"{self.args['time_str']},{self.args['model_name']},{_pred_path},{_target_path} \n")"""
 
         return cnn_accy, nme_accy
 

@@ -11,5 +11,6 @@
     "convnet_type": "resnet32",
     "device": ["0","1"],
     "seed": [1993],
-    "second-task-freeze-stage": 1 
+    "second_task_freeze_stage": 0,
+    "logfilename": "base" 
 }
