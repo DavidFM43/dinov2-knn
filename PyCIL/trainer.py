@@ -7,7 +7,7 @@ from utils.data_manager import DataManager
 from utils.toolkit import count_parameters
 import os
 import numpy as np
-
+from collections import OrderedDict
 
 def train(args):
     seed_list = copy.deepcopy(args["seed"])
@@ -68,7 +68,7 @@ def _train(args):
 
     init = 0
     if args["second_task_freeze_stage"] != 0:
-        load_model(output_dir, model)
+        #load_model(output_dir, model)
         init = 1
     else: print(f'{"-"*30} No se cargo ningun modelo {"-"*30}')
 
@@ -202,8 +202,22 @@ def ensure_dir_exists(path):
 
 def load_model(output_dir, model):
     task_0 = torch.load(f'{output_dir}/w0_stage_0.pth')
-    del task_0['fc.weight']; del task_0['fc.bias']
+    
+    fc_bias =  task_0.popitem()
+    fc_weight = task_0.popitem()
+    dict_weight_bias = OrderedDict([fc_weight, fc_bias]); print(dict_weight_bias)
+    # Crear un nuevo OrderedDict con las claves cambiadas a 'weight' y 'bias'
+    new_state_dict = OrderedDict()
+    new_state_dict['weight'] = dict_weight_bias.pop('fc.weight')
+    new_state_dict['bias'] = dict_weight_bias.pop('fc.bias')
+
     model._network.load_state_dict(task_0)
+
+    fc = model._network.generate_fc(in_dim = 64, out_dim = 5)
+
+    model._network.fc = fc.load_state_dict(new_state_dict)
+
+
 
     print(f'{"-"*30} Modelo Cargado {"-"*30}')
 

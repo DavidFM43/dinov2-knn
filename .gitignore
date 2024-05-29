@@ -14,5 +14,4 @@ data/
 weights/
 
 *.pth
-
-PyCIL/logs/
+*.npy
