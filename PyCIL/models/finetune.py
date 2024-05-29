@@ -46,7 +46,14 @@ class Finetune(BaseLearner):
         
         if data_manager.freeze_stage != 0:
             self._cur_task += 1
+            self._total_classes = self._known_classes + data_manager.get_task_size(
+            self._cur_task
+        ) 
+            self._network.update_fc(self._total_classes)
+            task_0 = torch.load(f'/home/emendezc/investigacion/dinov2-knn/PyCIL/logs/finetune/experiment_freeze/w0_stage_0.pth')
+            self._network.load_state_dict(task_0)
             self._known_classes = data_manager._increments[0]
+            
 
 
         self._cur_task += 1
@@ -75,8 +82,8 @@ class Finetune(BaseLearner):
         )
 
         # Comprobar que al entrenar la task 1 si inicie desde la segunda task
-        #print("Etiquetas en train_loader:",np.unique(train_dataset.labels) )
-        #print("Etiquetas en test_loader:", np.unique(test_dataset.labels))
+        print("Etiquetas en train_loader:",np.unique(train_dataset.labels) )
+        print("Etiquetas en test_loader:", np.unique(test_dataset.labels))
 
         if len(self._multiple_gpus) > 1:
             self._network = nn.DataParallel(self._network, self._multiple_gpus)
