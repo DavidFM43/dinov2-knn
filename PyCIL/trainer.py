@@ -79,7 +79,6 @@ def _train(args):
 
 
 
-
     for task in range( data_manager.nb_tasks - init ):
         logging.info("All params: {}".format(count_parameters(model._network)))
         logging.info(

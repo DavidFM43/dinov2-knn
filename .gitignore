@@ -15,3 +15,5 @@ weights/
 
 *.pth
 *.npy
+
+model_activations

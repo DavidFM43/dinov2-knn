@@ -66,6 +66,9 @@ class BaseNet(nn.Module):
 
     def extract_vector(self, x):
         return self.convnet(x)["features"]
+    
+    def extract_vector_stage(self, x):
+        return self.convnet(x)["fmaps"]
 
     def forward(self, x):
         x = self.convnet(x)
