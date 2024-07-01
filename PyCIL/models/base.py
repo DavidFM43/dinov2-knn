@@ -95,8 +95,8 @@ class BaseLearner(object):
         stage_name = self.args["second_task_freeze_stage"]
         if save_conf: 
             _pred = y_pred.T[0]
-            _pred_path = os.path.join(output_dir, f"pred_task_{self._cur_task}_stage_{stage_name}.npy")
-            _target_path = os.path.join(output_dir, f"target_task_{self._cur_task}_stage_{stage_name}.npy")
+            _pred_path = os.path.join(output_dir, f"pred_task_{self._cur_task}_stage_{stage_name}_fixed.npy")
+            _target_path = os.path.join(output_dir, f"target_task_{self._cur_task}_stage_{stage_name}_fixed.npy")
             np.save(_pred_path, _pred)
             np.save(_target_path, y_true)
             print(f'{"-"*20} Se guardaron los resultados de evaluación {"-"*20}')
@@ -138,7 +138,7 @@ class BaseLearner(object):
         self._network.eval()
         y_pred, y_true = [], []
         for _, (_, inputs, targets) in enumerate(loader):
-            inputs = inputs.to(self._device)
+            inputs = inputs.to('cuda') #; print(inputs.dtype)
             with torch.no_grad():
                 outputs = self._network(inputs)["logits"]
             predicts = torch.topk(

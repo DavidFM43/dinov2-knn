@@ -27,7 +27,8 @@ def setup_parser():
     parser.add_argument('--model_name', type=str, default="finetune")
     parser.add_argument('--convnet_type', type=str, default='resnet32')
     parser.add_argument('--second_task_freeze_stage', type=int, default=0)
-    parser.add_argument('--logfilename', type=str, default='experiment_freeze')
+    parser.add_argument('--logfilename', type=str, default='test')
+    
     
     return parser
 

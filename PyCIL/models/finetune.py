@@ -61,7 +61,12 @@ class Finetune(BaseLearner):
             self._cur_task
         ) # Cantidad de clases:  vistas
 
-        self._network.update_fc(self._total_classes)
+        if fixed_classifier := True:
+            self._network.update_fc(10)
+            print("fixed clasiffier")
+
+        else: self._network.update_fc(self._total_classes)
+
         logging.info(
             "Learning on {}-{}".format(self._known_classes, self._total_classes)
         )

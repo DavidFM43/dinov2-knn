@@ -1,4 +1,4 @@
-init_epoch: 15
+init_epoch: 30
 init_lr: 0.1
 init_milestones: 
   - 60
@@ -7,7 +7,7 @@ init_milestones:
 init_lr_decay: 0.1
 init_weight_decay: 0.0005
 
-epochs: 15
+epochs: 30
 lrate: 0.1
 milestones: 
   - 40
